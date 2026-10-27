@@ -5,6 +5,8 @@
   "volume": "~1M records per day (correlated with orders)",
   "frequency": "real_time_streaming",
   "supported_formats": ["avro"],
+  "phase": "Phase 2 (not implemented in initial release)",
+  "note": "Shipping events will be implemented in Phase 2. Phase 1 focuses on order and inventory streams.",
 
   "fields": [
     {
