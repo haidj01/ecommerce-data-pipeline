@@ -1,0 +1,399 @@
+{
+  "schema_name": "order",
+  "version": "1.1",
+  "description": "Order data schema for e-commerce platform",
+  "volume": "1M records per day",
+  "frequency": "real_time_streaming",
+  "supported_formats": ["avro"],
+  "note": "Orders use nested structure with order header and line items",
+  "silver_transformation": {
+    "description": "In the Silver layer, order_items is exploded into a separate order_items table",
+    "target_table": "order_items",
+    "carry_from_header": [
+      "order_id",
+      "order_date",
+      "event_timestamp"
+    ],
+    "primary_key": [
+      "order_id",
+      "line_item_id"
+    ],
+    "note": "line_item_id is unique only within an order, so (order_id, line_item_id) is the composite key"
+  },
+  "fields": [
+    {
+      "name": "order_id",
+      "type": "string",
+      "required": true,
+      "primary_key": true,
+      "description": "Unique order identifier",
+      "example": "ORD-2024-1001234",
+      "validation": {
+        "pattern": "^ORD-[0-9-]+$",
+        "max_length": 50
+      }
+    },
+    {
+      "name": "customer_id",
+      "type": "string",
+      "required": true,
+      "foreign_key": "customer.customer_id",
+      "description": "Reference to customer who placed the order",
+      "example": "CUST-1001234"
+    },
+    {
+      "name": "order_date",
+      "type": "timestamp",
+      "required": true,
+      "description": "Order placement timestamp (ISO 8601)",
+      "example": "2024-03-20T10:15:30Z"
+    },
+    {
+      "name": "order_status",
+      "type": "string",
+      "required": true,
+      "description": "Current order status",
+      "example": "confirmed",
+      "validation": {
+        "enum": [
+          "pending",
+          "confirmed",
+          "processing",
+          "shipped",
+          "delivered",
+          "cancelled",
+          "refunded",
+          "failed"
+        ]
+      }
+    },
+    {
+      "name": "payment_status",
+      "type": "string",
+      "required": true,
+      "description": "Payment processing status",
+      "example": "paid",
+      "validation": {
+        "enum": [
+          "pending",
+          "authorized",
+          "paid",
+          "failed",
+          "refunded",
+          "partially_refunded"
+        ]
+      }
+    },
+    {
+      "name": "order_channel",
+      "type": "string",
+      "required": true,
+      "description": "Sales channel where order was placed",
+      "example": "web",
+      "validation": {
+        "enum": [
+          "web",
+          "mobile_app",
+          "marketplace",
+          "phone",
+          "in_store",
+          "social_media"
+        ]
+      }
+    },
+    {
+      "name": "order_items",
+      "type": "array[json]",
+      "required": true,
+      "description": "Line items in the order",
+      "example": [
+        {
+          "line_item_id": "LINE-001",
+          "product_id": "PROD-12345",
+          "product_name": "Men's Cotton T-Shirt - Blue",
+          "quantity": 2,
+          "unit_price": 29.99,
+          "discount_amount": 5.0,
+          "line_total": 54.98,
+          "warehouse_id": "WH-NYC-01"
+        },
+        {
+          "line_item_id": "LINE-002",
+          "product_id": "PROD-67890",
+          "product_name": "Women's Jeans - Black",
+          "quantity": 1,
+          "unit_price": 79.99,
+          "discount_amount": 0.0,
+          "line_total": 79.99,
+          "warehouse_id": "WH-NYC-01"
+        }
+      ]
+    },
+    {
+      "name": "subtotal",
+      "type": "decimal",
+      "required": true,
+      "description": "Order subtotal before discounts and taxes",
+      "example": 139.97,
+      "validation": {
+        "min": 0,
+        "precision": 2
+      }
+    },
+    {
+      "name": "discount_total",
+      "type": "decimal",
+      "required": true,
+      "description": "Total discounts applied",
+      "example": 5.0,
+      "validation": {
+        "min": 0,
+        "precision": 2
+      }
+    },
+    {
+      "name": "tax_total",
+      "type": "decimal",
+      "required": true,
+      "description": "Total tax amount",
+      "example": 10.8,
+      "validation": {
+        "min": 0,
+        "precision": 2
+      }
+    },
+    {
+      "name": "shipping_cost",
+      "type": "decimal",
+      "required": true,
+      "description": "Shipping cost",
+      "example": 8.99,
+      "validation": {
+        "min": 0,
+        "precision": 2
+      }
+    },
+    {
+      "name": "total_amount",
+      "type": "decimal",
+      "required": true,
+      "description": "Final order total",
+      "example": 154.76,
+      "validation": {
+        "min": 0,
+        "precision": 2
+      }
+    },
+    {
+      "name": "currency",
+      "type": "string",
+      "required": true,
+      "description": "ISO 4217 currency code",
+      "example": "USD",
+      "validation": {
+        "pattern": "^[A-Z]{3}$"
+      }
+    },
+    {
+      "name": "payment_method",
+      "type": "string",
+      "required": true,
+      "description": "Payment method used",
+      "example": "credit_card",
+      "validation": {
+        "enum": [
+          "credit_card",
+          "debit_card",
+          "paypal",
+          "apple_pay",
+          "google_pay",
+          "bank_transfer",
+          "cash_on_delivery"
+        ]
+      }
+    },
+    {
+      "name": "shipping_address",
+      "type": "json",
+      "required": true,
+      "description": "Shipping address for the order",
+      "example": {
+        "recipient_name": "John Doe",
+        "street_address": "123 Main St",
+        "apartment": "Apt 4B",
+        "city": "New York",
+        "state": "NY",
+        "postal_code": "10001",
+        "country": "US",
+        "phone": "+1-555-123-4567"
+      }
+    },
+    {
+      "name": "billing_address",
+      "type": "json",
+      "required": true,
+      "description": "Billing address for the order",
+      "example": {
+        "name": "John Doe",
+        "street_address": "123 Main St",
+        "city": "New York",
+        "state": "NY",
+        "postal_code": "10001",
+        "country": "US"
+      }
+    },
+    {
+      "name": "coupon_codes",
+      "type": "array[string]",
+      "required": false,
+      "description": "Coupon codes applied to order",
+      "example": [
+        "SUMMER10",
+        "FREESHIP"
+      ]
+    },
+    {
+      "name": "shipping_method",
+      "type": "string",
+      "required": true,
+      "description": "Selected shipping method",
+      "example": "standard",
+      "validation": {
+        "enum": [
+          "standard",
+          "expedited",
+          "overnight",
+          "two_day",
+          "same_day",
+          "pickup"
+        ]
+      }
+    },
+    {
+      "name": "estimated_delivery_date",
+      "type": "date",
+      "required": false,
+      "description": "Estimated delivery date",
+      "example": "2024-03-25"
+    },
+    {
+      "name": "order_source_ip",
+      "type": "string",
+      "required": false,
+      "description": "IP address of order placement (for fraud detection)",
+      "example": "192.168.1.100"
+    },
+    {
+      "name": "device_type",
+      "type": "string",
+      "required": false,
+      "description": "Device used for order placement",
+      "example": "desktop",
+      "validation": {
+        "enum": [
+          "desktop",
+          "mobile",
+          "tablet",
+          "app_ios",
+          "app_android"
+        ]
+      }
+    },
+    {
+      "name": "fraud_score",
+      "type": "decimal",
+      "required": false,
+      "description": "Fraud risk score (0-100)",
+      "example": 15.5,
+      "validation": {
+        "min": 0,
+        "max": 100,
+        "precision": 2
+      }
+    },
+    {
+      "name": "notes",
+      "type": "string",
+      "required": false,
+      "description": "Customer notes or special instructions",
+      "validation": {
+        "max_length": 1000
+      }
+    },
+    {
+      "name": "fulfillment_warehouse_id",
+      "type": "string",
+      "required": false,
+      "description": "Primary warehouse fulfilling the order",
+      "example": "WH-NYC-01"
+    },
+    {
+      "name": "is_gift",
+      "type": "boolean",
+      "required": false,
+      "description": "Whether order is a gift",
+      "example": false
+    },
+    {
+      "name": "gift_message",
+      "type": "string",
+      "required": false,
+      "description": "Gift message if applicable",
+      "validation": {
+        "max_length": 500
+      }
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp",
+      "required": true,
+      "description": "Record creation timestamp (ISO 8601)",
+      "example": "2024-03-20T10:15:30Z"
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp",
+      "required": true,
+      "description": "Last update timestamp (ISO 8601)",
+      "example": "2024-03-20T14:22:15Z"
+    },
+    {
+      "name": "event_timestamp",
+      "type": "timestamp",
+      "required": true,
+      "description": "Event time for streaming data (ISO 8601)",
+      "example": "2024-03-20T14:22:15Z"
+    }
+  ],
+  "data_quality_rules": [
+    "order_id must be unique globally",
+    "total_amount must equal (subtotal - discount_total + tax_total + shipping_cost)",
+    "subtotal must equal sum of all line_item totals",
+    "order_status must follow valid transitions: pending -> confirmed -> processing -> shipped -> delivered",
+    "payment_status must be 'paid' or 'authorized' before order_status can be 'processing'",
+    "order_date must be <= current timestamp",
+    "estimated_delivery_date must be >= order_date",
+    "Each line item quantity must be > 0",
+    "Line item line_total must equal (quantity * unit_price - discount_amount)",
+    "customer_id must exist in customer table",
+    "All product_ids in order_items must exist in product catalog",
+    "Actual delivery date is tracked only in shipping (shipping.actual_delivery_date)"
+  ],
+  "order_lifecycle_tracking": {
+    "status_flow": "pending -> confirmed -> processing -> shipped -> delivered",
+    "cancellation_points": [
+      "pending",
+      "confirmed",
+      "processing"
+    ],
+    "refund_points": [
+      "delivered"
+    ],
+    "key_timestamps": [
+      "order_date",
+      "payment_timestamp",
+      "shipment_timestamp",
+      "delivery_timestamp"
+    ]
+  }
+}

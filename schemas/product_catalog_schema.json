@@ -1,0 +1,204 @@
+{
+  "schema_name": "product_catalog",
+  "version": "1.0",
+  "description": "Product catalog data schema for e-commerce platform",
+  "volume": "10K records per day",
+  "frequency": "daily_batch",
+  "supported_formats": ["csv"],
+
+  "fields": [
+    {
+      "name": "product_id",
+      "type": "string",
+      "required": true,
+      "primary_key": true,
+      "description": "Unique product identifier (SKU or internal ID)",
+      "example": "PROD-12345",
+      "validation": {
+        "pattern": "^[A-Z0-9-]+$",
+        "max_length": 50
+      }
+    },
+    {
+      "name": "product_name",
+      "type": "string",
+      "required": true,
+      "description": "Product display name",
+      "example": "Men's Cotton T-Shirt - Blue",
+      "validation": {
+        "max_length": 255,
+        "min_length": 1
+      }
+    },
+    {
+      "name": "category_level_1",
+      "type": "string",
+      "required": true,
+      "description": "Top-level product category",
+      "example": "Apparel",
+      "validation": {
+        "enum": ["Apparel", "Electronics", "Home & Garden", "Sports & Outdoors", "Beauty & Health", "Books & Media"]
+      }
+    },
+    {
+      "name": "category_level_2",
+      "type": "string",
+      "required": true,
+      "description": "Second-level product category",
+      "example": "Men's Clothing"
+    },
+    {
+      "name": "category_level_3",
+      "type": "string",
+      "required": false,
+      "description": "Third-level product category (most specific)",
+      "example": "T-Shirts & Tanks"
+    },
+    {
+      "name": "brand",
+      "type": "string",
+      "required": false,
+      "description": "Product brand name",
+      "example": "Nike"
+    },
+    {
+      "name": "description",
+      "type": "string",
+      "required": false,
+      "description": "Detailed product description",
+      "validation": {
+        "max_length": 5000
+      }
+    },
+    {
+      "name": "price",
+      "type": "decimal",
+      "required": true,
+      "description": "Current product price in USD",
+      "example": 29.99,
+      "validation": {
+        "min": 0,
+        "precision": 2
+      }
+    },
+    {
+      "name": "cost",
+      "type": "decimal",
+      "required": false,
+      "description": "Product cost/wholesale price in USD",
+      "example": 15.50,
+      "validation": {
+        "min": 0,
+        "precision": 2
+      }
+    },
+    {
+      "name": "currency",
+      "type": "string",
+      "required": true,
+      "description": "ISO 4217 currency code",
+      "example": "USD",
+      "validation": {
+        "pattern": "^[A-Z]{3}$"
+      }
+    },
+    {
+      "name": "lifecycle_status",
+      "type": "string",
+      "required": true,
+      "description": "Current product lifecycle stage",
+      "example": "active",
+      "validation": {
+        "enum": ["active", "discontinued", "pre_launch", "end_of_life", "archived"]
+      }
+    },
+    {
+      "name": "product_attributes",
+      "type": "json",
+      "required": false,
+      "description": "Product-specific attributes (size, color, material, etc.)",
+      "example": {
+        "size": "L",
+        "color": "Blue",
+        "material": "100% Cotton"
+      }
+    },
+    {
+      "name": "supplier_id",
+      "type": "string",
+      "required": false,
+      "description": "Supplier/vendor identifier"
+    },
+    {
+      "name": "weight_kg",
+      "type": "decimal",
+      "required": false,
+      "description": "Product weight in kilograms",
+      "validation": {
+        "min": 0,
+        "precision": 3
+      }
+    },
+    {
+      "name": "dimensions",
+      "type": "json",
+      "required": false,
+      "description": "Product dimensions",
+      "example": {
+        "length_cm": 30,
+        "width_cm": 20,
+        "height_cm": 5
+      }
+    },
+    {
+      "name": "image_urls",
+      "type": "array[string]",
+      "required": false,
+      "description": "Product image URLs"
+    },
+    {
+      "name": "tags",
+      "type": "array[string]",
+      "required": false,
+      "description": "Product tags for search and filtering",
+      "example": ["casual", "summer", "cotton"]
+    },
+    {
+      "name": "is_active",
+      "type": "boolean",
+      "required": true,
+      "description": "Whether product is currently available for sale",
+      "example": true
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp",
+      "required": true,
+      "description": "Product creation timestamp (ISO 8601)",
+      "example": "2024-01-15T10:30:00Z"
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp",
+      "required": true,
+      "description": "Last update timestamp (ISO 8601)",
+      "example": "2024-03-20T14:22:15Z"
+    },
+    {
+      "name": "event_timestamp",
+      "type": "timestamp",
+      "required": true,
+      "description": "Event time for streaming data (ISO 8601)",
+      "example": "2024-03-20T14:22:15Z",
+      "notes": "For Kafka messages, this represents when the catalog change occurred"
+    }
+  ],
+
+  "data_quality_rules": [
+    "product_id must be unique across all products",
+    "lifecycle_status must transition in valid order: pre_launch -> active -> discontinued/end_of_life -> archived",
+    "category hierarchy must be consistent (level_1 -> level_2 -> level_3)",
+    "price must be >= cost if cost is provided",
+    "is_active should be false if lifecycle_status is 'discontinued', 'end_of_life', or 'archived'"
+  ]
+}

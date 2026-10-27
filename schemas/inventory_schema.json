@@ -1,0 +1,296 @@
+{
+  "schema_name": "inventory",
+  "version": "1.1",
+  "description": "Inventory tracking schema for e-commerce platform",
+  "volume": "100K records per day",
+  "frequency": "real_time_streaming",
+  "supported_formats": ["avro"],
+  "fields": [
+    {
+      "name": "inventory_id",
+      "type": "string",
+      "required": true,
+      "primary_key": true,
+      "description": "Unique inventory record identifier",
+      "example": "INV-20240320-001234",
+      "validation": {
+        "pattern": "^INV-[0-9-]+$"
+      }
+    },
+    {
+      "name": "product_id",
+      "type": "string",
+      "required": true,
+      "foreign_key": "product_catalog.product_id",
+      "description": "Reference to product catalog",
+      "example": "PROD-12345"
+    },
+    {
+      "name": "warehouse_id",
+      "type": "string",
+      "required": true,
+      "description": "Warehouse or fulfillment center identifier",
+      "example": "WH-NYC-01",
+      "validation": {
+        "pattern": "^WH-[A-Z0-9-]+$"
+      }
+    },
+    {
+      "name": "location_code",
+      "type": "string",
+      "required": false,
+      "description": "Specific location within warehouse (aisle, shelf, bin)",
+      "example": "A12-B3-C5"
+    },
+    {
+      "name": "quantity_on_hand",
+      "type": "integer",
+      "required": true,
+      "description": "Current physical inventory quantity",
+      "example": 150,
+      "validation": {
+        "min": 0
+      }
+    },
+    {
+      "name": "quantity_reserved",
+      "type": "integer",
+      "required": true,
+      "description": "Quantity reserved for pending orders",
+      "example": 25,
+      "validation": {
+        "min": 0
+      }
+    },
+    {
+      "name": "quantity_available",
+      "type": "integer",
+      "required": true,
+      "description": "Available to promise quantity (on_hand - reserved)",
+      "example": 125,
+      "validation": {
+        "min": 0
+      }
+    },
+    {
+      "name": "quantity_in_transit",
+      "type": "integer",
+      "required": false,
+      "description": "Quantity currently being shipped to this warehouse",
+      "example": 50,
+      "validation": {
+        "min": 0
+      }
+    },
+    {
+      "name": "quantity_damaged",
+      "type": "integer",
+      "required": false,
+      "description": "Quantity of damaged/unsellable items",
+      "example": 5,
+      "validation": {
+        "min": 0
+      }
+    },
+    {
+      "name": "reorder_point",
+      "type": "integer",
+      "required": true,
+      "description": "Inventory level triggering reorder",
+      "example": 50,
+      "validation": {
+        "min": 0
+      }
+    },
+    {
+      "name": "reorder_quantity",
+      "type": "integer",
+      "required": true,
+      "description": "Standard reorder quantity",
+      "example": 200,
+      "validation": {
+        "min": 1
+      }
+    },
+    {
+      "name": "safety_stock",
+      "type": "integer",
+      "required": false,
+      "description": "Minimum safety stock level",
+      "example": 30,
+      "validation": {
+        "min": 0
+      }
+    },
+    {
+      "name": "unit_cost",
+      "type": "decimal",
+      "required": false,
+      "description": "Current unit cost in USD",
+      "example": 15.5,
+      "validation": {
+        "min": 0,
+        "precision": 2
+      }
+    },
+    {
+      "name": "inventory_value",
+      "type": "decimal",
+      "required": false,
+      "description": "Total inventory value (quantity_on_hand * unit_cost)",
+      "example": 2325.0,
+      "validation": {
+        "min": 0,
+        "precision": 2
+      }
+    },
+    {
+      "name": "supply_on_order",
+      "type": "integer",
+      "required": false,
+      "description": "Quantity on purchase orders (supply pipeline)",
+      "example": 300,
+      "validation": {
+        "min": 0
+      }
+    },
+    {
+      "name": "expected_delivery_date",
+      "type": "date",
+      "required": false,
+      "description": "Expected date for next supply delivery",
+      "example": "2024-04-01"
+    },
+    {
+      "name": "last_restock_date",
+      "type": "timestamp",
+      "required": false,
+      "description": "Date of last inventory replenishment",
+      "example": "2024-03-10T08:00:00Z"
+    },
+    {
+      "name": "last_counted_date",
+      "type": "timestamp",
+      "required": false,
+      "description": "Date of last physical inventory count",
+      "example": "2024-03-15T16:00:00Z"
+    },
+    {
+      "name": "inventory_status",
+      "type": "string",
+      "required": true,
+      "description": "Current inventory status",
+      "example": "in_stock",
+      "validation": {
+        "enum": [
+          "in_stock",
+          "low_stock",
+          "out_of_stock",
+          "discontinued",
+          "pending_arrival"
+        ]
+      }
+    },
+    {
+      "name": "inventory_turnover_rate",
+      "type": "decimal",
+      "required": false,
+      "description": "Inventory turnover rate (times per year)",
+      "example": 8.2,
+      "validation": {
+        "min": 0,
+        "precision": 2
+      }
+    },
+    {
+      "name": "event_type",
+      "type": "string",
+      "required": true,
+      "description": "Type of inventory event",
+      "example": "stock_update",
+      "validation": {
+        "enum": [
+          "stock_update",
+          "stock_adjustment",
+          "reorder_triggered",
+          "shipment_received",
+          "physical_count",
+          "reservation_change"
+        ]
+      }
+    },
+    {
+      "name": "change_reason",
+      "type": "string",
+      "required": false,
+      "description": "Reason for inventory change",
+      "example": "order_fulfillment",
+      "validation": {
+        "enum": [
+          "order_fulfillment",
+          "returns",
+          "damage",
+          "theft",
+          "restock",
+          "adjustment",
+          "physical_count",
+          "transfer"
+        ]
+      }
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp",
+      "required": true,
+      "description": "Record creation timestamp (ISO 8601)",
+      "example": "2024-03-20T14:22:15Z"
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp",
+      "required": true,
+      "description": "Last update timestamp (ISO 8601)",
+      "example": "2024-03-20T14:22:15Z"
+    },
+    {
+      "name": "event_timestamp",
+      "type": "timestamp",
+      "required": true,
+      "description": "Event time for streaming data (ISO 8601)",
+      "example": "2024-03-20T14:22:15Z"
+    }
+  ],
+  "data_quality_rules": [
+    "quantity_available must equal (quantity_on_hand - quantity_reserved)",
+    "inventory_value must equal (quantity_on_hand * unit_cost) when both present",
+    "quantity_on_hand must be >= quantity_reserved",
+    "All quantity fields must be >= 0",
+    "inventory_status derivation: out_of_stock if quantity_available = 0, low_stock if quantity_available <= reorder_point, in_stock otherwise",
+    "Real-time updates must maintain inventory accuracy within 1% tolerance",
+    "Physical counts should reconcile with system counts monthly"
+  ],
+  "demand_supply_tracking": {
+    "demand_indicators": [
+      "quantity_reserved"
+    ],
+    "supply_indicators": [
+      "quantity_on_hand",
+      "quantity_in_transit",
+      "supply_on_order",
+      "expected_delivery_date"
+    ],
+    "balance_metrics": [
+      "quantity_available",
+      "inventory_turnover_rate"
+    ],
+    "gold_layer_metrics": {
+      "note": "Derived metrics are not part of the source feed; they are computed in the Gold layer",
+      "metrics": {
+        "demand_forecast_30d": "Forecasted demand for next 30 days (from order history)",
+        "demand_forecast_90d": "Forecasted demand for next 90 days (from order history)",
+        "days_of_supply": "quantity_available / average_daily_demand",
+        "stockout_risk_score": "Derived from days_of_supply, demand_forecast, reorder_point"
+      }
+    }
+  }
+}

@@ -1,0 +1,6 @@
+product_id,product_name,category_level_1,category_level_2,category_level_3,brand,price,currency,lifecycle_status,is_active,created_at,updated_at,event_timestamp
+PROD-12345,"Men's Cotton T-Shirt - Blue",Apparel,Men's Clothing,T-Shirts & Tanks,Nike,29.99,USD,active,true,2024-01-15T10:30:00Z,2024-03-20T14:22:15Z,2024-03-20T14:22:15Z
+PROD-67890,"Women's Jeans - Black",Apparel,Women's Clothing,Jeans,Levi's,79.99,USD,active,true,2024-02-01T09:00:00Z,2024-03-20T14:22:15Z,2024-03-20T14:22:15Z
+PROD-11111,"Wireless Mouse",Electronics,Computer Accessories,Mice & Keyboards,Logitech,24.99,USD,active,true,2024-01-20T11:00:00Z,2024-03-20T14:22:15Z,2024-03-20T14:22:15Z
+PROD-22222,"Coffee Maker - 12 Cup",Home & Garden,Kitchen Appliances,Coffee Makers,Cuisinart,89.99,USD,active,true,2024-02-10T08:30:00Z,2024-03-20T14:22:15Z,2024-03-20T14:22:15Z
+PROD-33333,"Running Shoes - Size 10",Sports & Outdoors,Footwear,Running Shoes,Adidas,119.99,USD,discontinued,false,2023-06-15T10:00:00Z,2024-03-20T14:22:15Z,2024-03-20T14:22:15Z

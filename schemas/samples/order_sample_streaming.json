@@ -1,0 +1,68 @@
+{
+  "event_type": "order_created",
+  "event_timestamp": "2024-03-20T10:15:30Z",
+  "event_id": "evt_ord_1001234",
+  "source_system": "checkout_service",
+  "idempotency_key": "ord_1001234_20240320101530",
+  "data": {
+    "order_id": "ORD-2024-1001234",
+    "customer_id": "CUST-1001234",
+    "order_date": "2024-03-20T10:15:30Z",
+    "order_status": "pending",
+    "payment_status": "authorized",
+    "order_channel": "web",
+    "order_items": [
+      {
+        "line_item_id": "LINE-001",
+        "product_id": "PROD-12345",
+        "product_name": "Men's Cotton T-Shirt - Blue",
+        "quantity": 2,
+        "unit_price": 29.99,
+        "discount_amount": 5.0,
+        "line_total": 54.98,
+        "warehouse_id": "WH-NYC-01"
+      },
+      {
+        "line_item_id": "LINE-002",
+        "product_id": "PROD-67890",
+        "product_name": "Women's Jeans - Black",
+        "quantity": 1,
+        "unit_price": 79.99,
+        "discount_amount": 0.0,
+        "line_total": 79.99,
+        "warehouse_id": "WH-NYC-01"
+      }
+    ],
+    "subtotal": 139.97,
+    "discount_total": 5.0,
+    "tax_total": 10.8,
+    "shipping_cost": 8.99,
+    "total_amount": 154.76,
+    "currency": "USD",
+    "payment_method": "credit_card",
+    "shipping_address": {
+      "recipient_name": "John Doe",
+      "street_address": "123 Main St",
+      "apartment": "Apt 4B",
+      "city": "New York",
+      "state": "NY",
+      "postal_code": "10001",
+      "country": "US",
+      "phone": "+1-555-123-4567"
+    },
+    "billing_address": {
+      "name": "John Doe",
+      "street_address": "123 Main St",
+      "city": "New York",
+      "state": "NY",
+      "postal_code": "10001",
+      "country": "US"
+    },
+    "shipping_method": "standard",
+    "estimated_delivery_date": "2024-03-25",
+    "device_type": "desktop",
+    "created_at": "2024-03-20T10:15:30Z",
+    "updated_at": "2024-03-20T10:15:30Z",
+    "event_timestamp": "2024-03-20T10:15:30Z"
+  }
+}

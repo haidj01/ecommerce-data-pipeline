@@ -1,0 +1,32 @@
+{
+  "event_type": "inventory_updated",
+  "event_timestamp": "2024-03-20T14:22:15Z",
+  "event_id": "evt_inv_5678",
+  "source_system": "warehouse_management",
+  "idempotency_key": "inv_prod12345_wh01_20240320142215",
+  "data": {
+    "inventory_id": "INV-20240320-001234",
+    "product_id": "PROD-12345",
+    "warehouse_id": "WH-NYC-01",
+    "location_code": "A12-B3-C5",
+    "quantity_on_hand": 150,
+    "quantity_reserved": 25,
+    "quantity_available": 125,
+    "quantity_in_transit": 50,
+    "quantity_damaged": 2,
+    "reorder_point": 50,
+    "reorder_quantity": 200,
+    "safety_stock": 30,
+    "unit_cost": 15.5,
+    "inventory_value": 2325.0,
+    "supply_on_order": 300,
+    "expected_delivery_date": "2024-04-01",
+    "inventory_status": "in_stock",
+    "inventory_turnover_rate": 8.2,
+    "event_type": "stock_update",
+    "change_reason": "order_fulfillment",
+    "created_at": "2024-03-20T14:22:15Z",
+    "updated_at": "2024-03-20T14:22:15Z",
+    "event_timestamp": "2024-03-20T14:22:15Z"
+  }
+}

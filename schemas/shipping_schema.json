@@ -1,0 +1,368 @@
+{
+  "schema_name": "shipping",
+  "version": "1.0",
+  "description": "Shipping and fulfillment tracking schema for e-commerce platform",
+  "volume": "~1M records per day (correlated with orders)",
+  "frequency": "real_time_streaming",
+  "supported_formats": ["avro"],
+
+  "fields": [
+    {
+      "name": "shipment_id",
+      "type": "string",
+      "required": true,
+      "primary_key": true,
+      "description": "Unique shipment identifier",
+      "example": "SHIP-2024-5001234",
+      "validation": {
+        "pattern": "^SHIP-[0-9-]+$",
+        "max_length": 50
+      }
+    },
+    {
+      "name": "order_id",
+      "type": "string",
+      "required": true,
+      "foreign_key": "order.order_id",
+      "description": "Reference to order being shipped",
+      "example": "ORD-2024-1001234"
+    },
+    {
+      "name": "customer_id",
+      "type": "string",
+      "required": true,
+      "foreign_key": "customer.customer_id",
+      "description": "Reference to customer receiving shipment",
+      "example": "CUST-1001234"
+    },
+    {
+      "name": "tracking_number",
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "description": "Carrier tracking number",
+      "example": "1Z999AA10123456784",
+      "validation": {
+        "max_length": 100
+      }
+    },
+    {
+      "name": "carrier",
+      "type": "string",
+      "required": true,
+      "description": "Shipping carrier",
+      "example": "UPS",
+      "validation": {
+        "enum": ["UPS", "FedEx", "USPS", "DHL", "Amazon_Logistics", "Local_Courier", "Other"]
+      }
+    },
+    {
+      "name": "carrier_service",
+      "type": "string",
+      "required": true,
+      "description": "Specific carrier service level",
+      "example": "UPS_Ground",
+      "validation": {
+        "enum": ["UPS_Ground", "UPS_2Day", "UPS_Next_Day", "FedEx_Ground", "FedEx_Express", "USPS_Priority", "USPS_First_Class", "Standard", "Expedited", "Overnight"]
+      }
+    },
+    {
+      "name": "shipment_status",
+      "type": "string",
+      "required": true,
+      "description": "Current shipment status",
+      "example": "in_transit",
+      "validation": {
+        "enum": ["pending", "picked", "packed", "labeled", "shipped", "in_transit", "out_for_delivery", "delivered", "failed_delivery", "returned", "cancelled"]
+      }
+    },
+    {
+      "name": "shipment_items",
+      "type": "array[json]",
+      "required": true,
+      "description": "Items included in this shipment",
+      "example": [
+        {
+          "line_item_id": "LINE-001",
+          "product_id": "PROD-12345",
+          "quantity": 2,
+          "package_number": 1
+        }
+      ]
+    },
+    {
+      "name": "origin_warehouse_id",
+      "type": "string",
+      "required": true,
+      "description": "Warehouse from which shipment originated",
+      "example": "WH-NYC-01"
+    },
+    {
+      "name": "origin_address",
+      "type": "json",
+      "required": false,
+      "description": "Origin shipping address",
+      "example": {
+        "street_address": "100 Warehouse Blvd",
+        "city": "Newark",
+        "state": "NJ",
+        "postal_code": "07102",
+        "country": "US"
+      }
+    },
+    {
+      "name": "destination_address",
+      "type": "json",
+      "required": true,
+      "description": "Destination shipping address",
+      "example": {
+        "recipient_name": "John Doe",
+        "street_address": "123 Main St",
+        "apartment": "Apt 4B",
+        "city": "New York",
+        "state": "NY",
+        "postal_code": "10001",
+        "country": "US",
+        "phone": "+1-555-123-4567"
+      }
+    },
+    {
+      "name": "package_count",
+      "type": "integer",
+      "required": true,
+      "description": "Number of packages in shipment",
+      "example": 1,
+      "validation": {
+        "min": 1
+      }
+    },
+    {
+      "name": "package_details",
+      "type": "array[json]",
+      "required": false,
+      "description": "Details for each package",
+      "example": [
+        {
+          "package_number": 1,
+          "weight_kg": 1.5,
+          "length_cm": 30,
+          "width_cm": 20,
+          "height_cm": 10,
+          "tracking_number": "1Z999AA10123456784"
+        }
+      ]
+    },
+    {
+      "name": "total_weight_kg",
+      "type": "decimal",
+      "required": false,
+      "description": "Total shipment weight in kilograms",
+      "example": 1.5,
+      "validation": {
+        "min": 0,
+        "precision": 3
+      }
+    },
+    {
+      "name": "shipping_cost",
+      "type": "decimal",
+      "required": true,
+      "description": "Actual shipping cost",
+      "example": 8.99,
+      "validation": {
+        "min": 0,
+        "precision": 2
+      }
+    },
+    {
+      "name": "shipping_label_url",
+      "type": "string",
+      "required": false,
+      "description": "URL to shipping label document",
+      "example": "https://labels.example.com/SHIP-2024-5001234.pdf"
+    },
+    {
+      "name": "shipped_date",
+      "type": "timestamp",
+      "required": false,
+      "description": "When shipment left the warehouse (ISO 8601)",
+      "example": "2024-03-21T09:00:00Z"
+    },
+    {
+      "name": "estimated_delivery_date",
+      "type": "date",
+      "required": false,
+      "description": "Estimated delivery date",
+      "example": "2024-03-25"
+    },
+    {
+      "name": "actual_delivery_date",
+      "type": "timestamp",
+      "required": false,
+      "description": "Actual delivery timestamp (ISO 8601)",
+      "example": "2024-03-24T14:30:00Z"
+    },
+    {
+      "name": "delivery_signature",
+      "type": "string",
+      "required": false,
+      "description": "Name of person who received delivery",
+      "example": "John Doe"
+    },
+    {
+      "name": "delivery_notes",
+      "type": "string",
+      "required": false,
+      "description": "Delivery notes from carrier",
+      "example": "Left at front door",
+      "validation": {
+        "max_length": 500
+      }
+    },
+    {
+      "name": "tracking_events",
+      "type": "array[json]",
+      "required": false,
+      "description": "Tracking event history from carrier",
+      "example": [
+        {
+          "event_timestamp": "2024-03-21T09:00:00Z",
+          "status": "picked_up",
+          "location": "Newark, NJ",
+          "description": "Package picked up by carrier"
+        },
+        {
+          "event_timestamp": "2024-03-22T14:30:00Z",
+          "status": "in_transit",
+          "location": "Philadelphia, PA",
+          "description": "In transit to destination"
+        },
+        {
+          "event_timestamp": "2024-03-24T08:00:00Z",
+          "status": "out_for_delivery",
+          "location": "New York, NY",
+          "description": "Out for delivery"
+        },
+        {
+          "event_timestamp": "2024-03-24T14:30:00Z",
+          "status": "delivered",
+          "location": "New York, NY",
+          "description": "Delivered to recipient"
+        }
+      ]
+    },
+    {
+      "name": "shipping_method",
+      "type": "string",
+      "required": true,
+      "description": "Shipping method selected by customer",
+      "example": "standard",
+      "validation": {
+        "enum": ["standard", "expedited", "overnight", "two_day", "same_day", "pickup"]
+      }
+    },
+    {
+      "name": "is_international",
+      "type": "boolean",
+      "required": true,
+      "description": "Whether shipment crosses international borders",
+      "example": false
+    },
+    {
+      "name": "customs_declaration",
+      "type": "json",
+      "required": false,
+      "description": "Customs information for international shipments",
+      "example": {
+        "customs_value": 100.00,
+        "customs_currency": "USD",
+        "hs_codes": ["6109.10.00"],
+        "duties_paid": 15.00
+      }
+    },
+    {
+      "name": "return_shipment",
+      "type": "boolean",
+      "required": false,
+      "description": "Whether this is a return shipment",
+      "example": false
+    },
+    {
+      "name": "original_shipment_id",
+      "type": "string",
+      "required": false,
+      "description": "If return shipment, reference to original shipment",
+      "example": "SHIP-2024-5000100"
+    },
+    {
+      "name": "delivery_attempts",
+      "type": "integer",
+      "required": false,
+      "description": "Number of delivery attempts made",
+      "example": 1,
+      "validation": {
+        "min": 0
+      }
+    },
+    {
+      "name": "last_known_location",
+      "type": "string",
+      "required": false,
+      "description": "Last known location from tracking",
+      "example": "New York, NY"
+    },
+    {
+      "name": "last_location_update",
+      "type": "timestamp",
+      "required": false,
+      "description": "Timestamp of last location update",
+      "example": "2024-03-24T14:30:00Z"
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp",
+      "required": true,
+      "description": "Record creation timestamp (ISO 8601)",
+      "example": "2024-03-20T16:00:00Z"
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp",
+      "required": true,
+      "description": "Last update timestamp (ISO 8601)",
+      "example": "2024-03-24T14:30:00Z"
+    },
+    {
+      "name": "event_timestamp",
+      "type": "timestamp",
+      "required": true,
+      "description": "Event time for streaming data (ISO 8601)",
+      "example": "2024-03-24T14:30:00Z"
+    }
+  ],
+
+  "data_quality_rules": [
+    "shipment_id must be unique globally",
+    "tracking_number must be unique per carrier",
+    "order_id must exist in order table",
+    "customer_id must exist in customer table",
+    "shipment_status must follow valid transitions: pending -> picked -> packed -> labeled -> shipped -> in_transit -> out_for_delivery -> delivered",
+    "shipped_date must be <= estimated_delivery_date if both present",
+    "actual_delivery_date must be >= shipped_date if both present",
+    "shipment_status must be 'delivered' if actual_delivery_date is set",
+    "package_count must equal length of package_details array if present",
+    "All product_ids in shipment_items must exist in order items",
+    "Sum of quantities in shipment_items should not exceed order quantities",
+    "is_international must be true if destination country != origin country",
+    "customs_declaration required if is_international = true",
+    "tracking_events should be in chronological order",
+    "Last tracking event status should match shipment_status"
+  ],
+
+  "shipment_lifecycle_tracking": {
+    "status_flow": "pending -> picked -> packed -> labeled -> shipped -> in_transit -> out_for_delivery -> delivered",
+    "failure_statuses": ["failed_delivery", "returned", "cancelled"],
+    "key_timestamps": ["created_at", "shipped_date", "estimated_delivery_date", "actual_delivery_date"],
+    "real_time_tracking": "tracking_events array updated via carrier API webhooks"
+  }
+}

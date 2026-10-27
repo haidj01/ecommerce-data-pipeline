@@ -1,0 +1,237 @@
+{
+  "schema_name": "customer",
+  "version": "1.1",
+  "description": "Customer data schema for e-commerce platform - hybrid ingestion (real-time + batch CDC)",
+  "volume": "10K records per day",
+  "frequency": "hybrid",
+  "real_time_ingestion": {
+    "enabled": true,
+    "event_types": ["customer_created"],
+    "format": "avro",
+    "topic": "customer-events",
+    "description": "New customer sign-ups are ingested in real-time via Kafka to enable immediate order placement"
+  },
+  "batch_ingestion": {
+    "enabled": true,
+    "type": "cdc",
+    "event_types": ["customer_updated"],
+    "format": "jsonl",
+    "frequency": "daily",
+    "description": "Customer attribute changes (address, tier, etc.) are processed daily via CDC batch"
+  },
+  "silver_layer": {
+    "table": "customer_dim",
+    "type": "scd_type_2",
+    "description": "Maintains full history of customer attribute changes with effective_date from event_timestamp or change_timestamp",
+    "change_detection": "all_columns",
+    "effective_date_source": "event_timestamp (stream) or change_timestamp (batch)"
+  },
+
+  "fields": [
+    {
+      "name": "customer_id",
+      "type": "string",
+      "required": true,
+      "primary_key": true,
+      "description": "Unique customer identifier",
+      "example": "CUST-1001234",
+      "validation": {
+        "pattern": "^CUST-[0-9]+$",
+        "max_length": 50
+      }
+    },
+    {
+      "name": "email",
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "description": "Customer email address (unique identifier)",
+      "example": "john.doe@example.com",
+      "validation": {
+        "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+        "max_length": 255
+      }
+    },
+    {
+      "name": "phone",
+      "type": "string",
+      "required": false,
+      "description": "Customer phone number (E.164 format preferred)",
+      "example": "+1-555-123-4567",
+      "validation": {
+        "pattern": "^\\+?[1-9]\\d{1,14}$"
+      }
+    },
+    {
+      "name": "first_name",
+      "type": "string",
+      "required": true,
+      "description": "Customer first name",
+      "example": "John",
+      "validation": {
+        "max_length": 100
+      }
+    },
+    {
+      "name": "last_name",
+      "type": "string",
+      "required": true,
+      "description": "Customer last name",
+      "example": "Doe",
+      "validation": {
+        "max_length": 100
+      }
+    },
+    {
+      "name": "date_of_birth",
+      "type": "date",
+      "required": false,
+      "description": "Customer date of birth (ISO 8601 date)",
+      "example": "1985-06-15",
+      "validation": {
+        "format": "YYYY-MM-DD"
+      }
+    },
+    {
+      "name": "customer_segment",
+      "type": "string",
+      "required": false,
+      "description": "Customer segmentation tier",
+      "example": "premium",
+      "validation": {
+        "enum": ["new", "regular", "premium", "vip", "at_risk", "churned"]
+      }
+    },
+    {
+      "name": "account_status",
+      "type": "string",
+      "required": true,
+      "description": "Current account status",
+      "example": "active",
+      "validation": {
+        "enum": ["active", "inactive", "suspended", "closed"]
+      }
+    },
+    {
+      "name": "billing_address",
+      "type": "json",
+      "required": false,
+      "description": "Customer billing address",
+      "example": {
+        "street_address": "123 Main St",
+        "apartment": "Apt 4B",
+        "city": "New York",
+        "state": "NY",
+        "postal_code": "10001",
+        "country": "US"
+      }
+    },
+    {
+      "name": "shipping_addresses",
+      "type": "array[json]",
+      "required": false,
+      "description": "Customer shipping addresses (multiple allowed)",
+      "example": [
+        {
+          "address_id": "ADDR-001",
+          "is_default": true,
+          "street_address": "123 Main St",
+          "city": "New York",
+          "state": "NY",
+          "postal_code": "10001",
+          "country": "US"
+        }
+      ]
+    },
+    {
+      "name": "payment_methods",
+      "type": "array[json]",
+      "required": false,
+      "description": "Customer saved payment methods (tokenized)",
+      "example": [
+        {
+          "payment_method_id": "PM-12345",
+          "type": "credit_card",
+          "last_four": "4242",
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "name": "marketing_consent",
+      "type": "json",
+      "required": false,
+      "description": "Marketing consent preferences",
+      "example": {
+        "email_marketing": true,
+        "sms_marketing": false,
+        "push_notifications": true
+      }
+    },
+    {
+      "name": "registration_date",
+      "type": "timestamp",
+      "required": true,
+      "description": "Account registration timestamp (ISO 8601)",
+      "example": "2023-01-10T12:00:00Z"
+    },
+    {
+      "name": "language_preference",
+      "type": "string",
+      "required": false,
+      "description": "Customer language preference (ISO 639-1)",
+      "example": "en",
+      "validation": {
+        "pattern": "^[a-z]{2}$"
+      }
+    },
+    {
+      "name": "referral_source",
+      "type": "string",
+      "required": false,
+      "description": "How customer was acquired",
+      "example": "google_ads",
+      "validation": {
+        "enum": ["organic", "google_ads", "facebook_ads", "referral", "email", "direct", "other"]
+      }
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp",
+      "required": true,
+      "description": "Record creation timestamp (ISO 8601)",
+      "example": "2023-01-10T12:00:00Z"
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp",
+      "required": true,
+      "description": "Last update timestamp (ISO 8601)",
+      "example": "2024-03-20T14:22:15Z"
+    },
+    {
+      "name": "event_timestamp",
+      "type": "timestamp",
+      "required": true,
+      "description": "Event time for streaming data (ISO 8601)",
+      "example": "2024-03-20T14:22:15Z"
+    }
+  ],
+
+  "data_quality_rules": [
+    "customer_id must be globally unique - no duplicates allowed",
+    "email must be unique across all customers",
+    "customer_id and email combination serves as composite unique identifier",
+    "email format must be valid and verified",
+    "account_status transitions: new -> active -> (inactive/suspended) -> closed",
+    "date_of_birth must be at least 13 years ago (age validation)",
+    "PII data (email, phone, addresses) must be handled per GDPR/privacy regulations"
+  ],
+
+  "unique_identification_strategy": {
+    "primary_identifier": "customer_id",
+    "secondary_identifier": "email",
+    "deduplication_keys": ["customer_id", "email"],
+    "matching_strategy": "Exact match on customer_id takes precedence; email used for identity resolution"
+  }
+}

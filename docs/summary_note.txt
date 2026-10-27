@@ -1,0 +1,24 @@
+1. Source system context:
+   - Where is the data coming from?
+     Data generated in e-commerce company, data will contains product catalog, inventory, customer, sale, order, shipping
+     datasource:  application logs, database exports, files, API responses, Kafka Messages)
+   - How frequently will data arrive? real-time streaming, daily batch
+ 2. Business use case:
+   - What will this data be used for? (analytics, reporting, operational dashboards)
+   - Who are the stakeholders/consumers of this data? Product Manager/ Catalog Manager
+
+ 3. Data volume and characteristics:
+   - Expected data volume (records per day/hour)
+      1.  1M per day in order
+      2.  10K per day in catalog
+      3.  10K per day in customer
+      4.  100K per day in inventory
+
+   - Any data quality concerns or validation requirements
+      1. customer should be identified uniquely
+      2. clear product life cycle and precise product categorization
+      3. product inventory should be correct and tracking product demand and supply
+      4. Tracking for product order and shipping
+
+ 4. Format preference:
+   - CSV, JSON, Parquet, Kafka Message
