@@ -1,0 +1,34 @@
+완료했습니다. Databricks 배포가 제외되었지만 코드는 유지됩니다.
+
+  변경 사항
+
+  1. Provider 주석 처리
+
+  - infra/versions.tf - Databricks provider를 주석 처리 (lines 9-13)
+  - infra/main.tf - Databricks provider 설정을 주석 처리 (lines 12-19)
+
+  2. 모듈 배포 제외 (이미 설정됨)
+
+  - module "databricks" 블록은 count = var.enable_databricks_resources ? 1 : 0 조건으로 이미 설정됨
+  - terraform.tfvars.example에서 enable_databricks_resources = false (기본값)
+
+  3. README 업데이트
+
+  - Architecture 섹션에 "Optional - Currently Disabled" 표시 추가
+  - Cost 섹션에 "Databricks excluded" 명시
+  - Databricks 활성화 가이드 추가 (provider 주석 해제 → 환경 변수 설정 → terraform init -reconfigure)
+
+  현재 상태
+
+  Databricks 없이 배포 시:
+  terraform init   # Databricks provider 없이 초기화됨
+  terraform plan   # AWS 리소스만 계획됨
+  terraform apply  # 7개 모듈만 배포 (networking, storage, iam, database, kafka, orchestration, streaming)
+
+  나중에 Databricks 활성화 시
+
+  1. versions.tf와 main.tf에서 provider 주석 해제
+  2. terraform.tfvars에서 enable_databricks_resources = true
+  3. terraform init -reconfigure && terraform apply
+
+  모든 Databricks 코드는 modules/databricks/에 보존되어 있습니다.

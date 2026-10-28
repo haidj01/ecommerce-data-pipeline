@@ -1,0 +1,121 @@
+{
+  "type": "record",
+  "name": "CustomerEvent",
+  "namespace": "com.ecommerce.events",
+  "doc": "Customer registration and update events",
+  "fields": [
+    {
+      "name": "event_id",
+      "type": "string",
+      "doc": "Unique event identifier (UUID)"
+    },
+    {
+      "name": "event_type",
+      "type": {
+        "type": "enum",
+        "name": "CustomerEventType",
+        "symbols": ["customer_registered", "customer_updated"]
+      },
+      "doc": "Type of customer event"
+    },
+    {
+      "name": "event_timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "doc": "Event timestamp in UTC (milliseconds since epoch)"
+    },
+    {
+      "name": "source_system",
+      "type": "string",
+      "doc": "Source system that generated this event"
+    },
+    {
+      "name": "idempotency_key",
+      "type": "string",
+      "doc": "Key for idempotent processing"
+    },
+    {
+      "name": "customer_id",
+      "type": "string",
+      "doc": "Unique customer identifier (UUID)"
+    },
+    {
+      "name": "email",
+      "type": "string",
+      "doc": "Customer email address"
+    },
+    {
+      "name": "first_name",
+      "type": "string",
+      "doc": "Customer first name"
+    },
+    {
+      "name": "last_name",
+      "type": "string",
+      "doc": "Customer last name"
+    },
+    {
+      "name": "phone_number",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "Customer phone number"
+    },
+    {
+      "name": "date_of_birth",
+      "type": ["null", {
+        "type": "int",
+        "logicalType": "date"
+      }],
+      "default": null,
+      "doc": "Customer date of birth"
+    },
+    {
+      "name": "address_line1",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "Address line 1"
+    },
+    {
+      "name": "city",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "City"
+    },
+    {
+      "name": "state",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "State/Province"
+    },
+    {
+      "name": "postal_code",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "Postal/ZIP code"
+    },
+    {
+      "name": "country",
+      "type": "string",
+      "default": "US",
+      "doc": "Country code (ISO 3166-1 alpha-2)"
+    },
+    {
+      "name": "marketing_opt_in",
+      "type": "boolean",
+      "default": false,
+      "doc": "Marketing opt-in flag"
+    },
+    {
+      "name": "loyalty_tier",
+      "type": {
+        "type": "enum",
+        "name": "LoyaltyTier",
+        "symbols": ["bronze", "silver", "gold", "platinum"]
+      },
+      "default": "bronze",
+      "doc": "Customer loyalty tier"
+    }
+  ]
+}

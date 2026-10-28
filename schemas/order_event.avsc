@@ -1,0 +1,180 @@
+{
+  "type": "record",
+  "name": "OrderEvent",
+  "namespace": "com.ecommerce.events",
+  "doc": "Order creation and status change events",
+  "fields": [
+    {
+      "name": "event_id",
+      "type": "string",
+      "doc": "Unique event identifier (UUID)"
+    },
+    {
+      "name": "event_type",
+      "type": {
+        "type": "enum",
+        "name": "OrderEventType",
+        "symbols": ["order_created", "order_status_changed"]
+      },
+      "doc": "Type of order event"
+    },
+    {
+      "name": "event_timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "doc": "Event timestamp in UTC (milliseconds since epoch)"
+    },
+    {
+      "name": "source_system",
+      "type": "string",
+      "doc": "Source system that generated this event"
+    },
+    {
+      "name": "idempotency_key",
+      "type": "string",
+      "doc": "Key for idempotent processing"
+    },
+    {
+      "name": "order_id",
+      "type": "string",
+      "doc": "Unique order identifier (UUID)"
+    },
+    {
+      "name": "customer_id",
+      "type": "string",
+      "doc": "Customer identifier (UUID)"
+    },
+    {
+      "name": "order_date",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "doc": "Order date in UTC"
+    },
+    {
+      "name": "order_status",
+      "type": {
+        "type": "enum",
+        "name": "OrderStatus",
+        "symbols": ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"]
+      },
+      "doc": "Current order status"
+    },
+    {
+      "name": "order_items",
+      "type": {
+        "type": "array",
+        "items": {
+          "type": "record",
+          "name": "OrderItem",
+          "fields": [
+            {
+              "name": "line_item_id",
+              "type": "string",
+              "doc": "Line item identifier"
+            },
+            {
+              "name": "product_id",
+              "type": "string",
+              "doc": "Product identifier (UUID)"
+            },
+            {
+              "name": "quantity",
+              "type": "int",
+              "doc": "Quantity ordered"
+            },
+            {
+              "name": "unit_price",
+              "type": {
+                "type": "bytes",
+                "logicalType": "decimal",
+                "precision": 10,
+                "scale": 2
+              },
+              "doc": "Unit price at time of order"
+            },
+            {
+              "name": "discount_amount",
+              "type": {
+                "type": "bytes",
+                "logicalType": "decimal",
+                "precision": 10,
+                "scale": 2
+              },
+              "default": "\\u0000",
+              "doc": "Discount amount applied"
+            }
+          ]
+        }
+      },
+      "doc": "Order line items"
+    },
+    {
+      "name": "subtotal",
+      "type": {
+        "type": "bytes",
+        "logicalType": "decimal",
+        "precision": 10,
+        "scale": 2
+      },
+      "doc": "Order subtotal before tax"
+    },
+    {
+      "name": "tax_amount",
+      "type": {
+        "type": "bytes",
+        "logicalType": "decimal",
+        "precision": 10,
+        "scale": 2
+      },
+      "doc": "Tax amount"
+    },
+    {
+      "name": "shipping_cost",
+      "type": {
+        "type": "bytes",
+        "logicalType": "decimal",
+        "precision": 10,
+        "scale": 2
+      },
+      "doc": "Shipping cost"
+    },
+    {
+      "name": "total_amount",
+      "type": {
+        "type": "bytes",
+        "logicalType": "decimal",
+        "precision": 10,
+        "scale": 2
+      },
+      "doc": "Total order amount"
+    },
+    {
+      "name": "payment_method",
+      "type": {
+        "type": "enum",
+        "name": "PaymentMethod",
+        "symbols": ["credit_card", "debit_card", "paypal", "bank_transfer", "gift_card"]
+      },
+      "doc": "Payment method used"
+    },
+    {
+      "name": "shipping_address",
+      "type": {
+        "type": "record",
+        "name": "ShippingAddress",
+        "fields": [
+          {"name": "address_line1", "type": "string"},
+          {"name": "city", "type": "string"},
+          {"name": "state", "type": "string"},
+          {"name": "postal_code", "type": "string"},
+          {"name": "country", "type": "string", "default": "US"}
+        ]
+      },
+      "doc": "Shipping address"
+    }
+  ]
+}
