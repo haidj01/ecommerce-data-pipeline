@@ -87,7 +87,7 @@ Master files (product_catalog, customer) are generated first; stream producers p
    - Generate new customer with Faker
    - Publish to Kafka topic `customer-events` (event: `customer_registered`)
    - **Save to `customer_registry` DB** (source of truth for batch updates)
-   - MSK Connect → S3 `stream/customer_events/*.avro` → `bronze.customer_stream`
+   - MSK Connect → S3 `customer-events/YYYY-MM-DD/*.avro` → `bronze.customer_stream`
 
 **Update (daily batch)**
 1. MWAA DAG: `customer_batch_update` (runs daily on MWAA worker)
@@ -110,12 +110,23 @@ Master files (product_catalog, customer) are generated first; stream producers p
 ## Landing Layout (S3 / External Volume)
 
 ```
-/Volumes/<catalog>/landing/raw/
-  stream/customer_events/     # Avro from MSK Connect (customer_registered)
-  stream/orders/              # Avro from MSK Connect
-  stream/inventory_events/
-  batch/product_catalog/dt=YYYY-MM-DD/*.csv
-  batch/customer/dt=YYYY-MM-DD/*.jsonl  # customer updates
+s3://<bucket-name>/
+  customer-events/            # Avro from MSK Connect (customer_registered)
+    YYYY-MM-DD/               # Time-based partitioning by Kafka Connect
+      customer-events+0+0000000000.avro
+  orders/                     # Avro from MSK Connect
+    YYYY-MM-DD/
+      orders+0+0000000000.avro
+  inventory-events/           # Avro from MSK Connect
+    YYYY-MM-DD/
+      inventory-events+0+0000000000.avro
+  batch/
+    product_catalog/
+      dt=YYYY-MM-DD/
+        *.csv
+    customer/
+      dt=YYYY-MM-DD/
+        *.jsonl               # customer updates
 ```
 
 Unity Catalog schemas: `bronze`, `silver`, `gold`.
